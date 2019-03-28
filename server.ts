@@ -74,8 +74,8 @@ app.get('/accounts/1', mapReq(cond([
 app.get('/accounts/2', mapReq(cond([
   [checkToken, always({
     body: {
-      _link: {
-        holdings: { href: '/account/2/holdings' }
+      _links: {
+        holdings: { href: 'http://localhost:1138/account/2/holdings' }
       },
       institution: 'Investments Iz Us',
       lastUpdated: 1551753053,

@@ -34,9 +34,7 @@ console.log(diagram);
 
 
 
-
-
-diagram.fork(
-  console.error.bind(console, 'FALE:\n'),
-  console.log.bind(console, 'OK:\n')
-);
+// diagram.fork(
+//   console.error.bind(console, 'FALE:\n'),
+//   console.log.bind(console, 'OK:\n')
+// );
