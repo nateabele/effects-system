@@ -1,8 +1,10 @@
-import { always, cond, propEq, path, pathEq, whereEq, T } from 'ramda';
+import { always, cond as  _cond, propEq, path, pathEq, whereEq, T } from 'ramda';
 
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as readline from 'readline';
+
+const cond: any = _cond;
 
 const mapReq = fn => (req, res) => {
   const { status = 200, headers = {}, body = {} } = fn(req);
