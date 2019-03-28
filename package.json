@@ -1,0 +1,23 @@
+{
+  "name": "effects-system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node server.ts",
+    "test": "ts-node test.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "body-parser": "^1.18.3",
+    "difflet": "^1.0.1",
+    "express": "^4.16.4",
+    "fluture": "^10.3.1",
+    "ramda": "^0.26.1"
+  },
+  "devDependencies": {
+    "@types/node": "^11.12.0"
+  }
+}
