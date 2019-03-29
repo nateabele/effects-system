@@ -9,6 +9,6 @@
     "noImplicitAny": false,
     "strictNullChecks": true,
     "keyofStringsOnly": true,
-    "typeRoots": ["node_modules/@types"]
+    "typeRoots": ["node_modules/@types", "./types"]
   }
 }

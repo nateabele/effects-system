@@ -3,6 +3,7 @@ import { equals, fromPairs, map, match, pipe, pick, slice } from 'ramda';
 import Future, { FutureInstance } from 'fluture';
 import axios from 'axios';
 
+import { Message, MsgCtor } from './message';
 import * as Http from './http';
 
 import * as fs from 'fs';
@@ -13,10 +14,10 @@ import * as difflet from 'difflet';
 
 const diffView = difflet({ indent: 2 });
 
-const toFlags = pipe(
-  slice(2, Infinity),
+const toFlags = pipe<string[], string[], string[][], [string, string][], { [key: string]: string }>(
+  slice(2, Infinity) as (a: any) => string[],
   map(match(/^--([^=]+)=(.+)$/)),
-  map(slice(1, 3)),
+  map(slice(1, 3) as unknown as (arg: string[]) => [string, string]),
   fromPairs
 );
 
@@ -41,7 +42,7 @@ if (flags.in) {
   }
 }
 
-const commands = new Map([
+const commands = new Map<MsgCtor<Message<any, any, any>>, (...args: any[]) => FutureInstance<any, any>>([
   [Http.Get, ({ url, headers = {}, params = {} }) => new Future((reject, resolve) => {
     axios.get(url, { params, headers }).then(resolve, reject);
   })],
@@ -51,20 +52,28 @@ const commands = new Map([
   })],
 ])
 
-const cleanObj = pick(['status', 'headers', 'data']);
+const clean = pick(['status', 'headers', 'data']);
 
-export const exec = (cmd: any) => {
+export const exec = <In, Out, Err>(cmd: Message<In, Out, Err>): FutureInstance<Err, Out> => {
 
-  const logger: any = [error => {
-    entries.push([cmd, { error: cleanObj(error.response) }]);
-    return error;
-  },
-  result => {
-    entries.push([cmd, { result: cleanObj(result) }]);
-    return result;
-  }];
+  const logger: [(e: Err) => Err, (r: Out) => Out] = [
+    error => {
+      entries.push([cmd, { error: clean((error as any).response) }]);
+      return error;
+    },
+    result => {
+      entries.push([cmd, { result: clean(result) }]);
+      return result;
+    }
+  ];
 
-  const execd = (commands.get(cmd.constructor) as any)(cmd.data);
+  const handler = commands.get(cmd.constructor as MsgCtor<any>);
+
+  if (!handler) {
+    throw new Error('Unhandled message type: ' + cmd.constructor.name);
+  }
+
+  const execd = handler(cmd.data);
   const tx = !flags.out ? execd : execd.bimap(...logger);
 
   if (!stack) {
@@ -82,24 +91,26 @@ export const exec = (cmd: any) => {
       rl.question('\nExecute live effect? ', (result: string) => (
         (/^y/i).test(result)
           ? tx.fork(reject, resolve)
-          : reject(new Error('Unexpected empty transcript stack'))
+          : reject(new Error('Unexpected empty transcript stack') as any as Err)
       ))
     });
   }
 
-  const [request, response] = stack.shift();
+  const [request, response]: [{ type: string, data: In }, { result: Out } | { result: null, error: Err }] = stack.shift();
 
   if (equals(request, cmd.toJSON())) {
     rl.close();
-    return ((
-      response.result
+
+    const trx: FutureInstance<Err, Out> = (
+      !!response.result
         ? Future.of(response.result)
-        : Future.reject(response.error)
-    ) as any).bimap(logger[0], logger[1]);
+        : Future.reject((response as any).error as Err)
+    );
+    return trx.bimap(...logger);
   }
 
-  return (new Future((reject, resolve) => {
-    rl.write(`\n\nExecuted command ${cmd.constructor.name} differs from transcript:\n\n`);
+  return (new Future<Err, Out>((reject, resolve) => {
+    rl.write(`\n\nExecuted command \`${cmd.constructor.name}\` differs from transcript:\n\n`);
     rl.write(diffView.compare(request, cmd.toJSON()));
 
     rl.question('\nExecute live effect? ', (result: string) => {
@@ -107,9 +118,9 @@ export const exec = (cmd: any) => {
         ? tx.fork(reject, resolve)
         : response.result
         ? resolve(response.result)
-        : reject(response.error);
+        : reject((response as any).error as Err);
 
       rl.close();
     });
-  })).bimap(logger[0], logger[1]);
+  })).bimap(...logger);
 }
