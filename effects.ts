@@ -30,7 +30,7 @@ export const log = () => [...entries];
 
 if (flags.out) {
   process.on('exit', () => {
-    fs.writeFileSync(path.resolve(process.cwd(), flags.out), JSON.stringify(log()));
+    fs.writeFileSync(path.resolve(process.cwd(), flags.out), JSON.stringify(log(), null, 2));
   });
 }
 
@@ -106,7 +106,7 @@ export const exec = <In, Out, Err>(cmd: Message<In, Out, Err>): FutureInstance<E
         ? Future.of(response.result)
         : Future.reject((response as any).error as Err)
     );
-    return trx.bimap(...logger);
+    return !flags.out ? trx : trx.bimap(...logger);
   }
 
   return (new Future<Err, Out>((reject, resolve) => {
@@ -117,10 +117,10 @@ export const exec = <In, Out, Err>(cmd: Message<In, Out, Err>): FutureInstance<E
       (/^y/i).test(result)
         ? tx.fork(reject, resolve)
         : response.result
-        ? resolve(response.result)
-        : reject((response as any).error as Err);
+        ? resolve(logger[1](response.result))
+        : reject(logger[0]((response as any).error) as Err);
 
       rl.close();
     });
-  })).bimap(...logger);
+  }));
 }

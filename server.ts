@@ -9,6 +9,9 @@ const cond: any = _cond;
 const mapReq = fn => (req, res) => {
   const { status = 200, headers = {}, body = {} } = fn(req);
   res.status(status);
+  res.removeHeader('X-Powered-By');
+  res.removeHeader('ETag');
+  res.removeHeader('Date');
   Object.keys(headers).forEach(key => res.set(key, headers[key]));
   res.json(body);
   return res;
