@@ -1,4 +1,4 @@
-import { always, cond as  _cond, propEq, path, pathEq, whereEq, T } from 'ramda';
+import { always, both as and, cond as  _cond, propEq, pathEq, T } from 'ramda';
 
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
@@ -24,14 +24,15 @@ app.use(bodyParser.json())
 
 const notAuthorized = [T, always({ status: 403, body: { error: 'Not authorized' } })];
 const checkToken = pathEq(['headers', 'authtoken'], 'THE-S3KRIT-T0K3N');
+const checkPerf = pathEq(['query', 'performance'], 'true');
 
-app.use((req, res, next) => {
+app.use((req, {}, next) => {
   console.log(req.method.toUpperCase(), req.url);
   next();
 });
 
 app.get('/', ({}, res) => {
-  res.send('Test account service v1.0');
+  res.send('Very Real Financial Services, LLC — API v1.0');
 })
 
 app.post('/token', mapReq(cond([
@@ -43,6 +44,18 @@ app.post('/token', mapReq(cond([
 ])));
 
 app.get('/accounts', mapReq(cond([
+  [and(checkToken, checkPerf), always({
+    body: [
+      {
+        _links: { details: { href: 'http://localhost:1138/accounts/1', title: 'The Important One' } },
+        performance: { qtd: 1.5, mtd: -1.1, ytd: 5 }
+      },
+      {
+        _links: { details: { href: 'http://localhost:1138/accounts/2', title: 'The Other One' } },
+        performance: { ytd: 1.5, mtd: -2.1, qtd: 12 }
+      }
+    ]
+  })],
   [checkToken, always({
     body: [
       { _links: { details: { href: 'http://localhost:1138/accounts/1', title: 'The Important One' } } },

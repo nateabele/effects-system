@@ -23,7 +23,7 @@ const getWithAuth = <T>(authToken: string) => (url: string) => exec(new Get<T>({
   headers: { authToken }
 }));
 
-const diagram = exec(new Post<{ token: string }>({
+const flowDiagram = exec(new Post<{ token: string }>({
   url: `${API_ROOT}/token`,
   body: { username, password }
 }))
@@ -41,7 +41,7 @@ const diagram = exec(new Post<{ token: string }>({
             pipe(evolve({ data: path(['overview', 'holdings']) }), Future.of),
             pipe(
               path(['data', '_links', 'holdings', 'href']),
-          getWithAuth(authToken)
+              getWithAuth(authToken)
             )
           ))
 
@@ -49,17 +49,17 @@ const diagram = exec(new Post<{ token: string }>({
         Future.parallel(Infinity)
       ))
   ))
-  .map(pipe(
-    map(prop('data')) as any,
-    unnest
-  ));
+  .map(map(prop('data')))
+  .map(unnest);
 
 
-console.log(diagram);
+console.log(flowDiagram);
 
 
 
-// diagram.fork(
+
+
+// flowDiagram.fork(
 //   console.error.bind(console, 'FALE:\n'),
 //   console.log.bind(console, 'OK:\n')
 // );
