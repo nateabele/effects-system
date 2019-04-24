@@ -3,8 +3,10 @@
  */
 import { hasPath, ifElse, map, path, prop, pipe, evolve, unnest } from 'ramda';
 import { effectDispatch } from './effects';
+
 import * as Modules from './modules';
 import * as Future from 'fluture';
+import * as Interactive from './interactive';
 
 type Holding = {
   name: string;
@@ -14,7 +16,7 @@ type Holding = {
 };
 import { Get, Post } from './effects/http';
 
-const exec = effectDispatch(Modules.autoLoad('./effects'));
+const exec = Interactive.apply(effectDispatch(Modules.autoLoad('./effects')));
 
 const API_ROOT = 'http://localhost:1138',
       username = 'test@account',
@@ -25,10 +27,7 @@ const getWithAuth = (authToken: string) => (url: string) => exec(new Get({
   headers: { authToken }
 }));
 
-const flowDiagram = exec(new Post({
-  url: `${API_ROOT}/token`,
-  body: { username, password }
-}))
+const flowDiagram = exec(new Post({ url: `${API_ROOT}/token`, body: { username, password } }))
   .map(path(['data', 'token']))
   .chain((authToken: string) => (
     getWithAuth(authToken)(`${API_ROOT}/accounts`)

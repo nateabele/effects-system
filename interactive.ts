@@ -77,7 +77,7 @@ const compare = <In, Err, Out>(
 );
 
 
-const apply = <In, Err, Out>(cmd: Message<In>, tx: FutureInstance<Err, Out>) => (
+const applyInner = <In, Err, Out>(cmd: Message<In>, tx: FutureInstance<Err, Out>) => (
   !stack
     ? tx
     : stack.length === 0
@@ -85,4 +85,8 @@ const apply = <In, Err, Out>(cmd: Message<In>, tx: FutureInstance<Err, Out>) => 
     : compare(cmd, tx, stack.shift()!)
 );
 
-export default <In, Err, Out>(cmd: Message<In>, tx: FutureInstance<Err, Out>) => apply(cmd, log(cmd)(tx));
+type ExecFn<In, Err, Out> = (cmd: Message<In>) => FutureInstance<Err, Out>;
+
+export const apply = <In, Err, Out>(exec: ExecFn<In, Err, Out>): ExecFn<In, Err, Out> => (
+  (cmd: Message<In>) => applyInner(cmd, log(cmd)(exec(cmd)))
+);
