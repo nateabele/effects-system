@@ -16,7 +16,9 @@ type Holding = {
 };
 import { Get, Post } from './effects/http';
 
-const exec = Interactive.apply(effectDispatch(Modules.autoLoad('./effects')));
+const fromEffectDir = pipe(Modules.autoLoad, effectDispatch, Interactive.apply);
+
+const exec = fromEffectDir('./effects');
 
 const API_ROOT = 'http://localhost:1138',
       username = 'test@account',

@@ -1,6 +1,6 @@
 import { Message } from '../message';
 import { FutureInstance, encaseP } from 'fluture';
-import { merge, mergeAll, curry, pipe, when, compose, not, isNil, prop, omit, assoc } from 'ramda';
+import { merge, curry, pipe, when, compose, not, isNil, prop, omit, assoc } from 'ramda';
 import { AutoConfig } from '../modules';
 
 import axios from 'axios';
