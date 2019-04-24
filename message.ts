@@ -1,8 +1,13 @@
-export interface MsgCtor<T extends Message<any, any, any>> {
-  new(data: any): T;
+import { FutureInstance } from 'fluture';
+
+export interface MsgCtor<In> {
+
+  new<T extends Message<In>>(data: In): T;
 }
 
-export abstract class Message<In, Out, Err> {
+export abstract class Message<In> {
+
+  static handler: <In, Err, Out>(msg: In) => FutureInstance<Err, Out>;
 
   static id: string;
 

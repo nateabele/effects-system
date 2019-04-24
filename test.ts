@@ -2,9 +2,8 @@
  * Futures: Because [promises are broken](https://medium.com/@avaq/broken-promises-2ae92780f33)
  */
 import { hasPath, ifElse, map, path, prop, pipe, evolve, unnest } from 'ramda';
-import { exec } from './effects';
-
-import { Get, Post } from './http';
+import { effectDispatch } from './effects';
+import * as Modules from './modules';
 import * as Future from 'fluture';
 
 type Holding = {
@@ -13,17 +12,20 @@ type Holding = {
   quantity: number;
   price: number;
 };
+import { Get, Post } from './effects/http';
+
+const exec = effectDispatch(Modules.autoLoad('./effects'));
 
 const API_ROOT = 'http://localhost:1138',
       username = 'test@account',
       password = 's3krit';
 
-const getWithAuth = <T>(authToken: string) => (url: string) => exec(new Get<T>({
+const getWithAuth = (authToken: string) => (url: string) => exec(new Get({
   url,
   headers: { authToken }
 }));
 
-const flowDiagram = exec(new Post<{ token: string }>({
+const flowDiagram = exec(new Post({
   url: `${API_ROOT}/token`,
   body: { username, password }
 }))
