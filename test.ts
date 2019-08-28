@@ -21,8 +21,8 @@ const fromEffectDir = pipe(Modules.autoLoad, effectDispatch, Interactive.apply);
 const exec = fromEffectDir('./effects');
 
 const API_ROOT = 'http://localhost:1138',
-      username = 'test@account',
-      password = 's3krit';
+  username = 'test@account',
+  password = 's3krit';
 
 const getWithAuth = (authToken: string) => (url: string) => exec(new Get({
   url,

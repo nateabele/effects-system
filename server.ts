@@ -1,8 +1,9 @@
-import { always, both as and, cond as  _cond, propEq, pathEq, T } from 'ramda';
+import { always, both as and, cond as _cond, propEq, pathEq, T } from 'ramda';
 
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as readline from 'readline';
+import * as cors from 'cors';
 
 const cond: any = _cond;
 
@@ -12,6 +13,7 @@ const mapReq = fn => (req, res) => {
   res.removeHeader('X-Powered-By');
   res.removeHeader('ETag');
   res.removeHeader('Date');
+  res.set('Access-Control-Allow-Origin', '*');
   Object.keys(headers).forEach(key => res.set(key, headers[key]));
   res.json(body);
   return res;
@@ -19,6 +21,7 @@ const mapReq = fn => (req, res) => {
 
 const app = express();
 
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
@@ -26,12 +29,12 @@ const notAuthorized = [T, always({ status: 403, body: { error: 'Not authorized' 
 const checkToken = pathEq(['headers', 'authtoken'], 'THE-S3KRIT-T0K3N');
 const checkPerf = pathEq(['query', 'performance'], 'true');
 
-app.use((req, {}, next) => {
+app.use((req, { }, next) => {
   console.log(req.method.toUpperCase(), req.url);
   next();
 });
 
-app.get('/', ({}, res) => {
+app.get('/', ({ }, res) => {
   res.send('Very Real Financial Services, LLC — API v1.0');
 })
 

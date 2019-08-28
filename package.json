@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
     "difflet": "^1.0.1",
     "express": "^4.16.4",
     "fluture": "^10.3.1",
