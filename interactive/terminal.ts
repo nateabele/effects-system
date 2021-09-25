@@ -1,15 +1,8 @@
-import { pipe, slice, map, match, fromPairs, unary } from 'ramda';
+import { unary } from 'ramda';
 
 import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
-
-export const toFlags = pipe<string[], string[], string[][], [string, string][], { [key: string]: string }>(
-  slice(2, Infinity) as (a: any) => string[],
-  map(match(/^--([^=]+)=(.+)$/)),
-  map(slice(1, 3) as unknown as (arg: string[]) => [string, string]),
-  fromPairs
-);
 
 export const writeHook = (filePath: string, data: () => string) => {
   process.on('exit', () => {

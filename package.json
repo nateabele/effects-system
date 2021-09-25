@@ -16,10 +16,12 @@
     "difflet": "^1.0.1",
     "express": "^4.16.4",
     "fluture": "^10.3.1",
-    "ramda": "^0.26.1"
+    "ramda": "^0.26.1",
+    "yargs": "^17.2.0"
   },
   "devDependencies": {
     "@types/node": "^11.12.0",
+    "@types/yargs": "^17.0.3",
     "typescript": "^3.4.0-dev.20190328"
   }
 }

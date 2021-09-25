@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2017",
+    "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "module": "commonjs",
@@ -9,6 +10,9 @@
     "noImplicitAny": false,
     "strictNullChecks": true,
     "keyofStringsOnly": true,
-    "typeRoots": ["node_modules/@types", "./types"]
+    "typeRoots": [
+      "node_modules/@types",
+      "./types"
+    ]
   }
 }

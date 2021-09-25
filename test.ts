@@ -2,19 +2,16 @@
  * Futures: Because [promises are broken](https://medium.com/@avaq/broken-promises-2ae92780f33)
  */
 import { hasPath, ifElse, map, path, prop, pipe, evolve, unnest } from 'ramda';
+import yargs from 'yargs/yargs';
 import { effectDispatch } from './effects';
 
 import * as Modules from './modules';
 import * as Future from 'fluture';
 import * as Interactive from './interactive';
 
-type Holding = {
-  name: string;
-  ticker: string;
-  quantity: number;
-  price: number;
-};
 import { Get, Post } from './effects/http';
+
+const flags: any = yargs(process.argv).argv;
 
 const fromEffectDir = pipe(Modules.autoLoad, effectDispatch, Interactive.apply);
 
@@ -55,14 +52,13 @@ const flowDiagram = exec(new Post({ url: `${API_ROOT}/token`, body: { username, 
   .map(map(prop('data')))
   .map(unnest);
 
+if (flags.inspect) {
+  console.log(flowDiagram);
+}
 
-console.log(flowDiagram);
-
-
-
-
-
-// flowDiagram.fork(
-//   console.error.bind(console, 'FALE:\n'),
-//   console.log.bind(console, 'OK:\n')
-// );
+if (flags.run) {
+  flowDiagram.fork(
+    console.error.bind(console, 'FALE:\n'),
+    console.log.bind(console, 'OK:\n')
+  );
+}

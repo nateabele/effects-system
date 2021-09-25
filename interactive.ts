@@ -1,8 +1,9 @@
-import { tap, equals, pick, identity, always, useWith } from 'ramda';
+import { tap, equals, pick, identity, always } from 'ramda';
+import yargs from 'yargs';
 
 import Future, { FutureInstance } from 'fluture';
 
-import * as difflet from 'difflet';
+import difflet from 'difflet';
 import { Message } from './message';
 import * as Terminal from './interactive/terminal';
 
@@ -19,7 +20,7 @@ export type TransactionRecordOut<In, Err, Out> = [
 let entries: TransactionRecordOut<any, any, any>[] = [];
 let stack: TransactionRecord<any, any, any>[] | null = null;
 
-const flags = Terminal.toFlags(process.argv);
+const flags: any = yargs(process.argv).argv;
 const diffView = difflet({ indent: 2 });
 const clean = pick(['status', 'headers', 'data']);
 
@@ -58,22 +59,22 @@ const compare = <In, Err, Out>(
   [req, res]: TransactionRecord<In, Err, Out>
 ): FutureInstance<Err, Out> => (
   equals(req, cmd.toJSON())
-    ? log<In, Err, Out>(cmd)(!!res.result ? Future.of(res.result) : Future.reject((res as any).error as Err))
+    ? log(cmd)(!!res.result ? Future.of(res.result) : Future.reject((res as any).error as Err))
     : new Future<Err, Out>((reject, resolve) => {
-        Terminal.prompt(
-          [
-            '', '', `Executed command \`${cmd.constructor.name}\` differs from transcript:`,
-            '', '', diffView.compare(req, cmd.toJSON()), ''
-          ],
-          'Execute live effect?'
-        ).then((answer: string) => (
-          (/^y/i).test(answer)
-            ? tx.fork(reject, resolve)
-            : res.result
+      Terminal.prompt(
+        [
+          '', '', `Executed command \`${cmd.constructor.name}\` differs from transcript:`,
+          '', '', diffView.compare(req, cmd.toJSON()), ''
+        ],
+        'Execute live effect?'
+      ).then((answer: string) => (
+        (/^y/i).test(answer)
+          ? tx.fork(reject, resolve)
+          : res.result
             ? resolve(logger[1](res.result))
             : reject(logger[0]((res as any).error) as Err)
-        ));
-      })
+      ));
+    })
 );
 
 
@@ -81,8 +82,8 @@ const applyInner = <In, Err, Out>(cmd: Message<In>, tx: FutureInstance<Err, Out>
   !stack
     ? tx
     : stack.length === 0
-    ? handleEmptyStack(cmd, tx)
-    : compare(cmd, tx, stack.shift()!)
+      ? handleEmptyStack(cmd, tx)
+      : compare(cmd, tx, stack.shift()!)
 );
 
 type ExecFn<In, Err, Out> = (cmd: Message<In>) => FutureInstance<Err, Out>;
