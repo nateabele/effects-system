@@ -1,9 +1,9 @@
 import { always, both as and, cond as _cond, propEq, pathEq, T } from 'ramda';
 
-import * as express from 'express';
-import * as bodyParser from 'body-parser';
-import * as readline from 'readline';
-import * as cors from 'cors';
+import express from 'express';
+import bodyParser from 'body-parser';
+import readline from 'readline';
+import cors from 'cors';
 
 const cond: any = _cond;
 
@@ -63,6 +63,28 @@ app.get('/accounts', mapReq(cond([
     body: [
       { _links: { details: { href: 'http://localhost:1138/accounts/1', title: 'The Important One' } } },
       { _links: { details: { href: 'http://localhost:1138/accounts/2', title: 'The Other One' } } },
+    ]
+  })],
+  notAuthorized
+])));
+
+app.get('/v2/accounts', mapReq(cond([
+  [and(checkToken, checkPerf), always({
+    body: [
+      {
+        _links: { details: { href: 'http://localhost:1138/accounts/1', title: 'The Important One', version: 2 } },
+        performance: { qtd: 1.5, mtd: -1.1, ytd: 5 }
+      },
+      {
+        _links: { details: { href: 'http://localhost:1138/accounts/2', title: 'The Other One', version: 2 } },
+        performance: { ytd: 1.5, mtd: -2.1, qtd: 12 }
+      }
+    ]
+  })],
+  [checkToken, always({
+    body: [
+      { _links: { details: { href: 'http://localhost:1138/accounts/1', title: 'The Important One', version: 2 } } },
+      { _links: { details: { href: 'http://localhost:1138/accounts/2', title: 'The Other One', version: 2 } } },
     ]
   })],
   notAuthorized

@@ -61,7 +61,7 @@ export class Get extends Request<RequestConfig<null>> {
   }
 }
 
-export class Post<Body> extends Request<RequestConfig<Body>> {
+export class Post<Body extends {} | null> extends Request<RequestConfig<Body>> {
   static id = 'Http.Post';
 
   constructor(data: Omit<RequestConfig<Body>, 'method'>) {

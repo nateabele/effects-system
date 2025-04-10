@@ -1,5 +1,3 @@
-import { unary } from 'ramda';
-
 import * as fs from 'fs';
 import * as path from 'path';
 import * as readline from 'readline';
@@ -24,7 +22,7 @@ export const prompt = (preamble: string[], question: string) => new Promise<stri
     output: process.stdout
   });
 
-  preamble.forEach(unary(rl.write.bind(rl)));
+  preamble.forEach(line => rl.write(line + '\n'));
 
   rl.question(`${question} `, (result: string) => {
     resolve(result);
